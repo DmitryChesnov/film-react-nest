@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigModule } from '@nestjs/config';
-import { MongooseModule } from '@nestjs/mongoose';
-import * as path from 'node:path';
-
+import { join } from 'node:path';
 import { configProvider } from './app.config.provider';
-import { FilmsModule } from './films/films.module';
+import { FilmsModule } from './films';
 import { OrderModule } from './order/order.module';
+import { DatabaseModule } from './database';
 
 @Module({
   imports: [
@@ -14,14 +13,11 @@ import { OrderModule } from './order/order.module';
       isGlobal: true,
       cache: true,
     }),
-    // Подключаем MongoDB
-    MongooseModule.forRoot(process.env.DATABASE_URL),
-    // Статические файлы - важно для тестов
+    DatabaseModule.forRoot(),
     ServeStaticModule.forRoot({
-      rootPath: path.join(__dirname, '..', 'public'),
-      serveRoot: '/content', // Тесты ожидают /content/afisha/
+      rootPath: join(__dirname, '..', 'public'),
     }),
-    FilmsModule,
+    FilmsModule.register(),
     OrderModule,
   ],
   controllers: [],

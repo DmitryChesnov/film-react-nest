@@ -31,19 +31,16 @@ export class OrderService {
   async createOrder(orderItems: OrderItem[]): Promise<OrderResponseDto> {
     const responseItems: Array<OrderItem & { id: string }> = [];
 
-    // Группируем по фильму и сеансу
     const groupedBySession = this.groupBySession(orderItems);
 
     for (const [sessionKey, items] of Object.entries(groupedBySession)) {
       const [filmId, sessionId] = sessionKey.split('|');
 
-      // Получаем расписание
       const schedule = await this.filmsService.getFilmSchedule(
         filmId,
         sessionId,
       );
 
-      // Проверяем соответствие дня и цены
       for (const item of items) {
         if (schedule.daytime !== item.daytime) {
           throw new BadRequestException(
@@ -57,7 +54,6 @@ export class OrderService {
         }
       }
 
-      // Проверяем места
       const seatsToBook = items.map((item) => `${item.row}:${item.seat}`);
       for (const seat of seatsToBook) {
         if (!this.isValidSeat(seat, schedule.rows, schedule.seats)) {
@@ -65,7 +61,6 @@ export class OrderService {
         }
       }
 
-      // Проверяем, что места не заняты
       const takenSet = new Set(schedule.taken);
       for (const seat of seatsToBook) {
         if (takenSet.has(seat)) {
@@ -73,11 +68,9 @@ export class OrderService {
         }
       }
 
-      // Бронируем места
       const newTaken = [...schedule.taken, ...seatsToBook];
       await this.filmsService.updateTakenSeats(filmId, sessionId, newTaken);
 
-      // Создаем ответ
       for (const item of items) {
         responseItems.push({
           ...item,
