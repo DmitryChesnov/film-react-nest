@@ -1,0 +1,90 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: film-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: film_user
+      POSTGRES_PASSWORD: film_password
+      POSTGRES_DB: film_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - film-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U film_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: film-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - film-network
+    depends_on:
+      - postgres
+
+  backend:
+    image: ghcr.io/dmitrychesnov/film-react-nest-backend:latest
+    container_name: film-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+    ports:
+      - "3000:3000"
+    networks:
+      - film-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend-builder:
+    image: ghcr.io/dmitrychesnov/film-react-nest-frontend:latest
+    container_name: film-frontend-builder
+    volumes:
+      - frontend_dist:/app/dist
+    networks:
+      - film-network
+    profiles:
+      - build
+
+  nginx:
+    image: ghcr.io/dmitrychesnov/film-react-nest-nginx:latest
+    container_name: film-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - frontend_dist:/usr/share/nginx/html:ro
+    networks:
+      - film-network
+    depends_on:
+      - backend
+
+networks:
+  film-network:
+    driver: bridge
+    name: film-network
+
+volumes:
+  postgres_data:
+    name: film-postgres-data
+  pgadmin_data:
+    name: film-pgadmin-data
+  frontend_dist:
+    name: film-frontend-dist
