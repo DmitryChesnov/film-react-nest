@@ -39,4 +39,12 @@ MongoDB должна быть установлена и запущена.
 - `json` - JSON формат для машинной обработки
 - `tskv` - TSKV формат (Tab-Separated Key-Value)
 
+## Деплой
 
+Проект развёрнут и доступен по адресам:
+
+- **Фронтенд:** http://domainname.dmitrychesnov.nomorepartiessite.ru
+- **API (бэкенд):** http://domainname.dmitrychesnov.nomorepartiessite.ru:3000
+- **PgAdmin:** http://domainname.dmitrychesnov.nomorepartiessite.ru:8080
+  - Логин: `admin@example.com`
+  - Пароль: `admin123`
