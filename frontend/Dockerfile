@@ -1,5 +1,7 @@
 # frontend/Dockerfile
-FROM node:20-alpine AS builder
+
+# Этап 1: Сборка фронтенда
+FROM node:20 AS builder
 
 WORKDIR /app
 
@@ -15,10 +17,14 @@ COPY . .
 # Собираем проект
 RUN npm run build
 
-# Этап: артефакты
-FROM alpine:latest AS artifacts
+# Этап 2: Сервер (nginx)
+FROM nginx:alpine
 
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
+# Копируем собранные файлы из предыдущего этапа
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-CMD ["echo", "Frontend built successfully"]
+# Открываем порт 80
+EXPOSE 80
+
+# Запускаем nginx
+CMD ["nginx", "-g", "daemon off;"]
