@@ -1,0 +1,102 @@
+name: Test Endpoints with Backend
+
+on:
+  pull_request:
+    branches: [ main, master, review-2 ]
+  push:
+    branches: [ main, master ]
+
+jobs:
+  test-endpoints:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Build backend
+        run: |
+          cd backend
+          npm run build
+
+      - name: Create backend .env for tests
+        run: |
+          cat > backend/.env << 'EOF'
+          DATABASE_DRIVER=mongodb
+          DATABASE_URL=mongodb://localhost:27017/film_db
+          LOG_FORMAT=dev
+          DEBUG=*
+          EOF
+
+      - name: Wait for MongoDB to be ready
+        run: |
+          for i in {1..30}; do
+            if docker exec mongodb mongosh --eval "db.runCommand({ping: 1})" > /dev/null 2>&1; then
+              echo "MongoDB is ready"
+              exit 0
+            fi
+            echo "Waiting for MongoDB... ($i/30)"
+            sleep 2
+          done
+          echo "MongoDB failed to start"
+          exit 1
+
+      - name: Import test data to MongoDB
+        run: |
+          docker cp backend/test/mongodb_initial_stub.json mongodb:/tmp/data.json
+          docker exec mongodb mongoimport --db film_db --collection films --file /tmp/data.json --jsonArray
+
+      - name: Start backend server
+        run: |
+          cd backend
+          npm run start:prod &
+          sleep 15
+
+      - name: Wait for backend to be ready
+        run: |
+          for i in {1..30}; do
+            if curl -s -f http://localhost:3000/api/afisha/films > /dev/null 2>&1; then
+              echo "Backend is ready"
+              exit 0
+            fi
+            echo "Waiting for backend... ($i/30)"
+            sleep 2
+          done
+          echo "Backend failed to start"
+          curl -v http://localhost:3000/api/afisha/films || true
+          exit 1
+
+      - name: Get testing lib
+        run: |
+          set -eu
+          git clone --depth 1 $REP_TESTS $DIR_TESTS
+        env:
+          DIR_TESTS: /tmp/tests-back-to-the-film
+          REP_TESTS: https://github.com/Yandex-Practicum/tests-back-to-the-film.git
+
+      - name: Run endpoint tests
+        run: |
+          bash $DIR_TESTS/bin/endpoints.sh
+        env:
+          DIR_TESTS: /tmp/tests-back-to-the-film

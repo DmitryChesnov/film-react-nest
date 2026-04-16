@@ -16,7 +16,7 @@ export class TskvLogger implements LoggerService {
    * Экранирует специальные символы для TSKV формата
    * Заменяет \n, \r, \t на пробелы, так как они используются как разделители
    */
-  private escapeTskv(value: any): string {
+  private escapeTskv(value: unknown): string {
     if (value === null || value === undefined) {
       return '';
     }
@@ -31,7 +31,7 @@ export class TskvLogger implements LoggerService {
     return str;
   }
 
-  formatMessage(level: string, message: any, ...optionalParams: any[]): string {
+  formatMessage(level: string, message: unknown, ...optionalParams: unknown[]): string {
     const fields: string[] = [];
 
     // Обязательные поля
@@ -56,23 +56,23 @@ export class TskvLogger implements LoggerService {
     return fields.join('\t');
   }
 
-  log(message: any, ...optionalParams: any[]) {
+  log(message: unknown, ...optionalParams: unknown[]) {
     console.log(this.formatMessage('log', message, ...optionalParams));
   }
 
-  error(message: any, ...optionalParams: any[]) {
+  error(message: unknown, ...optionalParams: unknown[]) {
     console.error(this.formatMessage('error', message, ...optionalParams));
   }
 
-  warn(message: any, ...optionalParams: any[]) {
+  warn(message: unknown, ...optionalParams: unknown[]) {
     console.warn(this.formatMessage('warn', message, ...optionalParams));
   }
 
-  debug(message: any, ...optionalParams: any[]) {
+  debug(message: unknown, ...optionalParams: unknown[]) {
     console.debug(this.formatMessage('debug', message, ...optionalParams));
   }
 
-  verbose(message: any, ...optionalParams: any[]) {
+  verbose(message: unknown, ...optionalParams: unknown[]) {
     console.log(this.formatMessage('verbose', message, ...optionalParams));
   }
 }
