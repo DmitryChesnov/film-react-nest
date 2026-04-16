@@ -1,4 +1,4 @@
-import { Module, Global, DynamicModule, Inject } from '@nestjs/common';
+import { Module, Global, DynamicModule } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LoggerFactory } from './logger.factory';
 import { DevLogger } from './dev.logger';
@@ -19,13 +19,22 @@ export class LoggerModule {
 
     return {
       module: LoggerModule,
-      providers: [loggerProvider, DevLogger, JsonLogger, TskvLogger],
+      providers: [
+        loggerProvider,
+        {
+          provide: DevLogger,
+          useFactory: () => new DevLogger(),
+        },
+        {
+          provide: JsonLogger,
+          useFactory: () => new JsonLogger(),
+        },
+        {
+          provide: TskvLogger,
+          useFactory: () => new TskvLogger(),
+        },
+      ],
       exports: ['LOGGER_SERVICE', DevLogger, JsonLogger, TskvLogger],
     };
   }
 }
-
-// Декоратор для инъекции логгера
-export const InjectLogger = () => {
-  return Inject('LOGGER_SERVICE');
-};

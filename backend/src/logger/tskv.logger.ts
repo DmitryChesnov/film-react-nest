@@ -1,10 +1,10 @@
-import { Injectable, LoggerService } from '@nestjs/common';
+import { Injectable, LoggerService, Optional } from '@nestjs/common';
 
 @Injectable()
 export class TskvLogger implements LoggerService {
   private context?: string;
 
-  constructor(context?: string) {
+  constructor(@Optional() context?: string) {
     this.context = context;
   }
 
