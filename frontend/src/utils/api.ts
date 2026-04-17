@@ -14,7 +14,6 @@ export type ErrorState = {
     error: string;
 };
 
-
 export class Api {
     readonly baseUrl: string;
     protected _options: RequestInit;
@@ -128,10 +127,6 @@ export class FilmAPI extends Api implements IFilmAPI {
         this.cdn = cdn;
     }
 
-    /**
-     * Получить список сеансов фильма
-     * @param id
-     */
     async getFilmSchedule(id: string): Promise<Session[]> {
         const data = await this._get<ApiListResponse<Session>>(
             `/films/${id}/schedule`
@@ -147,9 +142,6 @@ export class FilmAPI extends Api implements IFilmAPI {
         });
     }
 
-    /**
-     * Получить список фильмов
-     */
     async getFilms(): Promise<Movie[]> {
         const data = await this._get<ApiListResponse<Movie>>('/films');
         return data.items.map((item) => ({
@@ -159,13 +151,6 @@ export class FilmAPI extends Api implements IFilmAPI {
         }));
     }
 
-    /**
-     * Забронировать билеты
-     * @param order - данные для бронирования
-     * @param order.tickets - список билетов, для каждого требуются как минимум поля film, session, row, seat
-     * @param order.email - email пользователя
-     * @param order.phone - телефон пользователя
-     */
     async orderTickets(order: Order): Promise<OrderResult[]> {
         const data = await this._post<ApiListResponse<OrderResult>>(
             '/order',
@@ -181,3 +166,26 @@ export class FilmAPI extends Api implements IFilmAPI {
         });
     }
 }
+
+// ========== НАСТРОЙКА ДЛЯ РАЗНЫХ ОКРУЖЕНИЙ ==========
+
+const getApiBaseUrl = (): string => {
+    // В продакшене используем относительный путь (запросы через Nginx proxy)
+    if (import.meta.env.PROD) {
+        return '/api/afisha';
+    }
+    // В разработке используем localhost
+    return import.meta.env.VITE_API_URL || 'http://localhost:3000/api/afisha';
+};
+
+const getCdnUrl = (): string => {
+    // В продакшене используем относительный путь для статики
+    if (import.meta.env.PROD) {
+        return '/content/afisha';
+    }
+    // В разработке используем localhost
+    return import.meta.env.VITE_CDN_URL || 'http://localhost:3000/content/afisha';
+};
+
+// Экспорт готового экземпляра API для использования в приложении
+export const filmAPI = new FilmAPI(getCdnUrl(), getApiBaseUrl());

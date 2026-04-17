@@ -1,7 +1,7 @@
 import {ReactNode, Reducer, useEffect, useReducer, useRef} from "react";
 import {Actions, appReducer, AppState, initialState, Modals} from "../utils/state.ts";
-import {Contacts, FilmAPI, IFilmAPI, Movie, Session} from "../utils/api.ts";
-import {API_URL, CDN_URL} from "../utils/constants.ts";
+import {Contacts, IFilmAPI, Movie, Session} from "../utils/api.ts";
+import {filmAPI} from "../utils/api.ts";
 import {Button} from "../components/Button/Button.tsx";
 
 const flow : Record<Modals, { next: Modals | null, prev: Modals | null }> = {
@@ -15,10 +15,8 @@ const flow : Record<Modals, { next: Modals | null, prev: Modals | null }> = {
 export function useAppState() {
     const [state, dispatch] = useReducer<Reducer<AppState, Actions>>(appReducer, initialState);
 
-    const api = useRef<IFilmAPI>(new FilmAPI(
-        CDN_URL,
-        API_URL
-    ));
+    // Используем готовый экземпляр API вместо создания нового
+    const api = useRef<IFilmAPI>(filmAPI);
 
     const preview = state.films.find(film => film.id === state.selectedFilm);
     const session = state.schedule.find(session => session.id === state.selectedSession);
