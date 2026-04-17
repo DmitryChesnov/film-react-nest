@@ -38,7 +38,7 @@ services:
   backend:
     image: ghcr.io/dmitrychesnov/film-react-nest-backend:latest
     container_name: film-backend
-    restart: unless-stopped
+    restart: always
     env_file:
       - ./backend/.env
     environment:
@@ -52,6 +52,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/afisha/films"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend-builder:
     image: ghcr.io/dmitrychesnov/film-react-nest-frontend:latest
@@ -64,17 +70,24 @@ services:
       - build
 
   nginx:
-    image: ghcr.io/dmitrychesnov/film-react-nest-nginx:latest
+    image: nginx:alpine
     container_name: film-nginx
-    restart: unless-stopped
+    restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - frontend_dist:/usr/share/nginx/html:ro
     networks:
       - film-network
     depends_on:
       - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 networks:
   film-network:
