@@ -22,7 +22,7 @@ services:
     env_file:
       - .env
     ports:
-      - "8080:80"
+      - "8080:8080"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
     networks:
@@ -59,6 +59,8 @@ services:
     container_name: film-frontend
     volumes:
       - frontend_dist:/usr/share/nginx/html
+    ports:
+      - "3001:80"
     networks:
       - film-network
 
