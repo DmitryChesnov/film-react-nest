@@ -63,7 +63,7 @@ services:
     image: ghcr.io/dmitrychesnov/film-react-nest-frontend:latest
     container_name: film-frontend-builder
     volumes:
-      - frontend_dist:/app/dist
+      - frontend_dist:/usr/share/nginx/html
     networks:
       - film-network
     profiles:
