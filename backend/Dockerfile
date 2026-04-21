@@ -28,8 +28,8 @@ RUN npm ci --only=production && npm cache clean --force
 # Копируем собранный код
 COPY --from=builder /app/dist ./dist
 
-# Создаем необходимые директории
-RUN mkdir -p public
+# Копируем статику
+COPY public ./public
 
 # Создаем пользователя для безопасности
 RUN addgroup -g 1001 -S nodejs && \
