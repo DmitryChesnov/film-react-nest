@@ -170,25 +170,15 @@ export class FilmAPI extends Api implements IFilmAPI {
 // ========== НАСТРОЙКА ДЛЯ РАЗНЫХ ОКРУЖЕНИЙ ==========
 
 const getApiBaseUrl = (): string => {
-  // В продакшене используем относительный путь (запросы через Nginx proxy)
-  if (import.meta.env.PROD) {
-    return "/api/afisha";
-  }
   // В разработке используем localhost
   return (
-    import.meta.env.VITE_API_URL ||
     "https://api.dmitrychesnov.nomorepartiessite.ru/api/afisha"
   );
 };
 
 const getCdnUrl = (): string => {
-  // В продакшене используем относительный путь для статики
-  if (import.meta.env.PROD) {
-    return "/content/afisha";
-  }
   // В разработке используем localhost
   return (
-    import.meta.env.VITE_CDN_URL ||
     "https://api.dmitrychesnov.nomorepartiessite.ru/content/afisha"
   );
 };
