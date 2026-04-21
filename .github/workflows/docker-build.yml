@@ -51,7 +51,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,format=short
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
 
       # 5. Сборка и публикация бэкенда
       - name: Build and push Backend
@@ -74,7 +74,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,format=short
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
 
       # 7. Сборка и публикация фронтенда
       - name: Build and push Frontend
@@ -97,7 +97,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,format=short
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
 
       # 9. Сборка и публикация Nginx
       - name: Build and push Nginx

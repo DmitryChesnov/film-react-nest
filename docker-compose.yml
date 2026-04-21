@@ -36,7 +36,7 @@ services:
       - postgres
 
   backend:
-    image: ghcr.io/dmitrychesnov/film-react-nest-backend
+    image: ghcr.io/dmitrychesnov/film-react-nest-backend:latest
     container_name: film-backend
     restart: always
     env_file:
@@ -60,7 +60,7 @@ services:
       start_period: 40s
 
   frontend-builder:
-    image: ghcr.io/dmitrychesnov/film-react-nest-frontend
+    image: ghcr.io/dmitrychesnov/film-react-nest-frontend:latest
     container_name: film-frontend-builder
     volumes:
       - frontend_dist:/usr/share/nginx/html
