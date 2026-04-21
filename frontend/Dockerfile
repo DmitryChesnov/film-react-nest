@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Устанавливаем зависимости
-RUN npm ci --only=production=false
+RUN npm ci
 
 # Копируем исходный код
 COPY . .
@@ -18,7 +18,7 @@ COPY . .
 RUN npm run build
 
 # Этап 2: Сервер (nginx)
-FROM nginx:alpine
+FROM nginx
 
 # Копируем собранные файлы из предыдущего этапа
 COPY --from=builder /app/dist /usr/share/nginx/html
