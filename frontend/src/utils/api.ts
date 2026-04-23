@@ -179,7 +179,7 @@ const getApiBaseUrl = (): string => {
 const getCdnUrl = (): string => {
   // В разработке используем localhost
   return (
-    "https://api.dmitrychesnov.nomorepartiessite.ru/content/afisha"
+      "https://api.dmitrychesnov.nomorepartiessite.ru"
   );
 };
 
